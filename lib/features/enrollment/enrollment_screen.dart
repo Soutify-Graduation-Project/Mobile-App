@@ -71,7 +71,10 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     }
   }
 
-  String get _currentPhrase => enrollmentPromptsAr[_phraseIndex];
+  EnrollmentVisualPrompt get _currentPrompt =>
+      enrollmentVisualPrompts[_phraseIndex];
+
+  String get _currentPhrase => _currentPrompt.phrase;
 
   String _draftPath() {
     final uid = _userId!;
@@ -185,7 +188,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ),
     );
 
-    final isLast = _phraseIndex >= enrollmentPromptsAr.length - 1;
+    final isLast = _phraseIndex >= enrollmentVisualPrompts.length - 1;
     if (isLast) {
       await _uploadAll();
       return;
@@ -231,17 +234,25 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Widget build(BuildContext context) {
     if (_loadingUser || _userId == null || _enrollmentRoot == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('التخصيص')),
+        appBar: AppBar(
+          title: Semantics(
+            label: 'التخصيص',
+            child: const Icon(Icons.record_voice_over_outlined, size: 26),
+          ),
+        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    final total = enrollmentPromptsAr.length;
+    final total = enrollmentVisualPrompts.length;
     final lastPhrase = _phraseIndex >= total - 1;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('التخصيص'),
+        title: Semantics(
+          label: 'التخصيص',
+          child: const Icon(Icons.record_voice_over_outlined, size: 26),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: _uploading ? null : () => Navigator.of(context).pop(),
@@ -255,42 +266,85 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'الجملة ${_phraseIndex + 1} من $total',
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
+                  ExcludeSemantics(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(total, (i) {
+                        final done = i < _phraseIndex;
+                        final current = i == _phraseIndex;
+                        final scheme = Theme.of(context).colorScheme;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Icon(
+                            Icons.circle,
+                            size: current ? 18 : 12,
+                            color: done || current
+                                ? scheme.primary
+                                : scheme.outlineVariant,
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: SingleChildScrollView(
-                      child: Text(
-                        _currentPhrase,
-                        style: Theme.of(context).textTheme.titleLarge,
-                        textAlign: TextAlign.center,
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _currentPrompt.phrase,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            Semantics(
+                              label: _currentPrompt.semanticsLabel,
+                              image: true,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.asset(
+                                  _currentPrompt.imageAsset,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   if (_isRecording)
                     LargePrimaryButton(
-                      label: 'إيقاف التسجيل',
+                      icon: Icons.stop_circle_outlined,
+                      semanticLabel: 'إيقاف التسجيل',
                       onPressed: _uploading ? null : _stopRecording,
                     )
                   else
                     LargePrimaryButton(
-                      label: 'بدء التسجيل',
+                      icon: Icons.mic,
+                      semanticLabel: 'بدء التسجيل',
                       onPressed: (_uploading || _hasDraft) ? null : _startRecording,
                     ),
                   const SizedBox(height: 12),
                   LargePrimaryButton(
-                    label: 'إعادة التسجيل',
+                    icon: Icons.replay,
+                    semanticLabel: 'إعادة التسجيل',
                     onPressed: (_uploading || (!_isRecording && !_hasDraft))
                         ? null
                         : _redoRecording,
                   ),
                   const SizedBox(height: 12),
                   LargePrimaryButton(
-                    label: lastPhrase ? 'إرسال وإنهاء' : 'إرسال والتالي',
+                    icon: lastPhrase ? Icons.cloud_upload_outlined : Icons.arrow_forward,
+                    semanticLabel:
+                        lastPhrase ? 'إرسال كل التسجيلات وإنهاء' : 'حفظ والانتقال للصورة التالية',
                     onPressed:
                         (_uploading || !_hasDraft || _isRecording)
                             ? null
@@ -299,7 +353,8 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   if (_uploadFailed) ...[
                     const SizedBox(height: 12),
                     LargePrimaryButton(
-                      label: 'إعادة إرسال للخادم',
+                      icon: Icons.refresh,
+                      semanticLabel: 'إعادة إرسال للخادم',
                       onPressed: _uploading ? null : _uploadAll,
                     ),
                   ],

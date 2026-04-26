@@ -6,8 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/accessibility/wcag_theme.dart';
-import '../../core/constants/asr_model_assets.dart';
-import '../../modules/edge_inference/edge_inference_engine.dart';
 import '../../modules/speech_recording/speech_recording_service.dart';
 
 enum _LivePhase { idle, recording, revealing }
@@ -22,7 +20,6 @@ class LiveAsrScreen extends StatefulWidget {
 class _LiveAsrScreenState extends State<LiveAsrScreen>
     with SingleTickerProviderStateMixin {
   final SpeechRecordingService _recorder = SpeechRecordingService();
-  final EdgeInferenceEngine _inference = EdgeInferenceEngine();
   String? _activeRecordingPath;
   _LivePhase _phase = _LivePhase.idle;
   String _shownText = '';
@@ -31,21 +28,12 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
   Animation<double>? _pulseScale;
 
   static const _mockCorrection =
-      'العبارة بعد التصحيح ستظهر هنا عندما يكون النموذج المحلي جاهزاً.';
+      'العبارة بعد التصحيح ستظهر هنا عندما يتصل التطبيق بالخادم.';
 
   @override
   void initState() {
     super.initState();
     _ensurePulseAnimation();
-    unawaited(_loadAsrModel());
-  }
-
-  Future<void> _loadAsrModel() async {
-    try {
-      await _inference.loadBaseModel(AsrModelAssets.defaultAsrTflite);
-    } catch (_) {
-      // Model load is retried on stop if needed via error feedback.
-    }
   }
 
   void _ensurePulseAnimation() {
@@ -64,7 +52,6 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     _pulseController?.dispose();
     _typewriter?.cancel();
     unawaited(_recorder.dispose());
-    unawaited(_inference.dispose());
     super.dispose();
   }
 
@@ -133,7 +120,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
   }
 
   Future<void> _stopAndReveal() async {
-    final recordingPath = _activeRecordingPath;
+    final audioPath = _activeRecordingPath;
     try {
       await _recorder.stop();
     } catch (_) {}
@@ -145,18 +132,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     });
     _syncRecordingPulse();
 
-    if (recordingPath != null) {
-      try {
-        await _inference.runInferenceOnRecording(recordingPath);
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('فشل الاستدلال: $e')),
-          );
-        }
-      }
-    }
-
+    _queueServerProcessing(audioPath);
     await Future<void>.delayed(const Duration(milliseconds: 400));
     if (!mounted) return;
     _runTypewriter();
@@ -185,6 +161,11 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
       }
       i++;
     });
+  }
+
+  void _queueServerProcessing(String? audioPath) {
+    if (audioPath == null) return;
+    // TODO: multipart POST to backend (ASR + AUD + RL); then setState with result text.
   }
 
   Future<void> _onBack() async {

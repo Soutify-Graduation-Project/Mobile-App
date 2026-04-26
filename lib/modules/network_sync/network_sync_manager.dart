@@ -6,13 +6,13 @@ import '../../core/constants/api_endpoints.dart';
 import 'api_client.dart';
 import 'enrollment_clip.dart';
 
-/// Uploads enrollment audio, downloads trained adapter weights, requests TTS audio.
+/// Uploads enrollment audio and other server calls (TTS, etc.).
 ///
 /// TODO: Define multipart schema, auth headers, and streaming TTS protocol.
 class NetworkSyncManager {
   NetworkSyncManager({ApiClient? apiClient}) : client = apiClient ?? ApiClient();
 
-  /// Shared HTTP client for enrollment, adapter, and TTS calls.
+  /// Shared HTTP client for enrollment and TTS calls.
   final ApiClient client;
 
   /// Upload enrollment clips (paths on device) in one request or batch (TBD).
@@ -46,12 +46,6 @@ class NetworkSyncManager {
     }
 
     await client.client.post(ApiEndpoints.enrollmentUpload, data: form);
-  }
-
-  /// Download personalized adapter and persist via [AdapterStore].
-  Future<void> downloadAdapter({required String userId}) async {
-    // TODO: GET bytes → write file
-    await Future<void>.value();
   }
 
   /// Request cloned-voice TTS; returns playable URL or stream handle (TBD).

@@ -3,6 +3,5 @@ abstract final class ApiEndpoints {
   static const String baseUrlPlaceholder = 'https://api.example.com';
 
   static const String enrollmentUpload = '/v1/enrollment';
-  static const String adapterDownload = '/v1/adapter';
   static const String ttsStream = '/v1/tts';
 }
