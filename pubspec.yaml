@@ -24,6 +24,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
+
+flutter_native_splash:
+  color: "#0F6380"
+  image: "assets/Team 12 - Soutify.PNG"
+  android_12:
+    color: "#0F6380"
+    image: "assets/Team 12 - Soutify.PNG"
 
 flutter:
   uses-material-design: true

@@ -298,7 +298,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                               _currentPrompt.phrase,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headlineSmall
+                                  .headlineLarge
                                   ?.copyWith(fontWeight: FontWeight.w700),
                               textAlign: TextAlign.center,
                             ),

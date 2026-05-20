@@ -33,7 +33,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               LargePrimaryButton(
-                label: 'التخصيص (تسجيل الجمل)',
+                label: 'التخصيص',
                 semanticLabel: 'فتح التسجيل للتخصيص',
                 onPressed: () => Navigator.of(context).pushNamed(
                   AppRouter.enrollment,

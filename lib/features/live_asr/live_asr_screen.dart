@@ -28,7 +28,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
   Animation<double>? _pulseScale;
 
   static const _mockCorrection =
-      'العبارة بعد التصحيح ستظهر هنا عندما يتصل التطبيق بالخادم.';
+      'تعالي نروح النادي';
 
   @override
   void initState() {
@@ -133,7 +133,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     _syncRecordingPulse();
 
     _queueServerProcessing(audioPath);
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
     _runTypewriter();
   }
@@ -145,7 +145,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     _typewriter = Timer.periodic(const Duration(milliseconds: 45), (timer) {
       if (i >= graphemes.length) {
         timer.cancel();
-        Future<void>.delayed(const Duration(milliseconds: 800)).then((_) {
+        Future<void>.delayed(const Duration(milliseconds: 3000)).then((_) {
           if (mounted) {
             setState(() {
               _phase = _LivePhase.idle;
@@ -186,12 +186,12 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     _ensurePulseAnimation();
     final revealing = _phase == _LivePhase.revealing;
     final textStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
-          color: Colors.white,
+          color: Colors.black,
           height: 1.35,
         );
 
     return Scaffold(
-      backgroundColor: WcagTheme.idleGrey,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
@@ -199,7 +199,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
               top: 4,
               left: 4,
               child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
                 onPressed: revealing ? null : _onBack,
               ),
             ),
