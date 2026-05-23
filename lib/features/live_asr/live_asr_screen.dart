@@ -28,7 +28,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
   Animation<double>? _pulseScale;
 
   static const _mockCorrection =
-      'تعالي نروح النادي';
+      'تعالى بس تعالى افهمني';
 
   @override
   void initState() {
@@ -195,14 +195,6 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
       body: SafeArea(
         child: Stack(
           children: [
-            Positioned(
-              top: 4,
-              left: 4,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: revealing ? null : _onBack,
-              ),
-            ),
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),

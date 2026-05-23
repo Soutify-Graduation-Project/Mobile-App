@@ -1,6 +1,6 @@
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/Team 12 - Soutify.PNG"
+  image_path: "assets/Soutify.PNG"
   adaptive_icon_background: "#FFFFFF" 
-  adaptive_icon_foreground: "assets/Team 12 - Soutify.PNG"
+  adaptive_icon_foreground: "assets/Soutify.PNG"

@@ -29,18 +29,14 @@ dev_dependencies:
 
 flutter_native_splash:
   color: "#0F6380"
-  image: "assets/Team 12 - Soutify.PNG"
+  image: "assets/images/Soutify.PNG"
   android_12:
     color: "#0F6380"
-    image: "assets/Team 12 - Soutify.PNG"
+    image: "assets/images/Soutify.PNG"
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/Team 12 - Soutify.PNG
-    - assets/cat.jpg
-    - assets/dog.jpg
-    - assets/elephant.jpg
-    - assets/lion.jpg
-    - assets/mango.jpg
-    - assets/strawberry.jpg
+    - assets/images/Soutify.PNG
+    - assets/personalization/personalization_words.json
+    - assets/personalization/images/

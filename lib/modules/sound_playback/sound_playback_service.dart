@@ -24,6 +24,17 @@ class SoundPlaybackService {
     await _player.play();
   }
 
+  Future<void> playFile(String path) async {
+    await _player.setFilePath(path);
+    await _player.play();
+  }
+
+  Future<void> pause() => _player.pause();
+
+  bool get isPlaying => _player.playing;
+
+  Stream<PlayerState> get playerStateStream => _player.playerStateStream;
+
   Future<void> stop() => _player.stop();
 
   Future<void> dispose() => _player.dispose();
