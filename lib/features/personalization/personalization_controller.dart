@@ -285,6 +285,7 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
       pageStorageKey: _pageStorageKey,
       index: _currentIndex,
       phrases: _prompts,
+      hasRecordingFor: _hasRecording,
       controller: _pageController,
       onPageChanged: _jumpToPhrase,
       previousPhrase: _currentIndex == 0 ? null : _previousPhrase,

@@ -20,12 +20,14 @@ class PersonalizationView extends StatelessWidget {
     required this.isRecorded,
     required this.uploadStatus,
     required this.onPageChanged,
+    required this.hasRecordingFor,
     this.controller,
   });
 
   final Key pageStorageKey;
   final int index;
   final List<PersonalizationWord> phrases;
+  final Future<bool> Function(int index) hasRecordingFor;
   final VoidCallback? nextPhrase;
   final VoidCallback? previousPhrase;
   final VoidCallback? record;
@@ -54,7 +56,10 @@ class PersonalizationView extends StatelessWidget {
           itemCount: phrases.length,
           onPageChanged: onPageChanged,
           itemBuilder: (context, pageIndex) {
-            return PhraseView(phrase: phrases[pageIndex]);
+            return PhraseView(
+              phrase: phrases[pageIndex],
+              hasRecording: () => hasRecordingFor(pageIndex),
+            );
           },
         );
 
