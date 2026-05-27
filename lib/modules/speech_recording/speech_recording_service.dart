@@ -14,7 +14,7 @@ class SpeechRecordingService {
   Future<void> start({required String path}) async {
     await _recorder.start(
       RecordConfig(
-        encoder: AudioEncoder.pcm16bits, // Best for Wav2Vec ASR models (faster to process and no compression)
+        encoder: AudioEncoder.wav,
         sampleRate: AudioConfig.targetSampleRateHz,
         bitRate: 256000,
       ),

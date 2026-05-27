@@ -33,7 +33,6 @@ abstract final class WcagTheme {
         seedColor: brandPrimary,
         brightness: Brightness.light,
         surface: Colors.white,
-        onSurface: Colors.black,
       ),
       visualDensity: VisualDensity.standard,
     );

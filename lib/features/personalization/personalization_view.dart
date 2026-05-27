@@ -19,8 +19,15 @@ class PersonalizationView extends StatelessWidget {
     required this.isPlaying,
     required this.isRecorded,
     required this.uploadStatus,
+    required this.isFinalizing,
+    required this.enrollmentCount,
+    required this.requiredCount,
+    required this.isPersonalized,
+    required this.hasPendingPersonalizationUpdate,
+    required this.showFinalizeAction,
     required this.onPageChanged,
     required this.hasRecordingFor,
+    this.finalizePersonalization,
     this.controller,
   });
 
@@ -36,8 +43,15 @@ class PersonalizationView extends StatelessWidget {
   final bool isPlaying;
   final bool isRecorded;
   final UploadStatus uploadStatus;
+  final bool isFinalizing;
+  final int enrollmentCount;
+  final int requiredCount;
+  final bool isPersonalized;
+  final bool hasPendingPersonalizationUpdate;
+  final bool showFinalizeAction;
   final ValueChanged<int> onPageChanged;
   final PageController? controller;
+  final VoidCallback? finalizePersonalization;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +62,7 @@ class PersonalizationView extends StatelessWidget {
       sideLength = height - 180;
     }
 
-    return OrientationBuilder(
+    final body = OrientationBuilder(
       builder: (context, orientation) {
         final pageArea = PageView.builder(
           key: pageStorageKey,
@@ -74,6 +88,12 @@ class PersonalizationView extends StatelessWidget {
         ];
 
         final secondHalf = <Widget>[
+          _PersonalizationStatus(
+            enrollmentCount: enrollmentCount,
+            requiredCount: requiredCount,
+            isPersonalized: isPersonalized,
+            hasPendingPersonalizationUpdate: hasPendingPersonalizationUpdate,
+          ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -131,6 +151,10 @@ class PersonalizationView extends StatelessWidget {
           if (uploadStatus == UploadStatus.started) ...[
             const SizedBox(height: 16),
             const CircularProgressIndicator(),
+            if (isFinalizing) ...[
+              const SizedBox(height: 8),
+              const Text('Personalization is running on the server...'),
+            ],
           ],
         ];
 
@@ -151,6 +175,121 @@ class PersonalizationView extends StatelessWidget {
                 ],
               );
       },
+    );
+
+    return Stack(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(bottom: showFinalizeAction ? 92 : 0),
+          child: body,
+        ),
+        if (showFinalizeAction)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 16,
+            child: _FinalizePersonalizationBar(
+              isPersonalized: isPersonalized,
+              isFinalizing: isFinalizing,
+              onPressed: finalizePersonalization,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _FinalizePersonalizationBar extends StatelessWidget {
+  const _FinalizePersonalizationBar({
+    required this.isPersonalized,
+    required this.isFinalizing,
+    required this.onPressed,
+  });
+
+  final bool isPersonalized;
+  final bool isFinalizing;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 8,
+      borderRadius: BorderRadius.circular(16),
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            if (isFinalizing) ...[
+              const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: isFinalizing ? null : onPressed,
+                icon: Icon(isPersonalized ? Icons.sync : Icons.auto_fix_high),
+                label: Text(
+                  isFinalizing
+                      ? 'Personalization is running...'
+                      : isPersonalized
+                          ? 'Update Personalization'
+                          : 'Start Personalization',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PersonalizationStatus extends StatelessWidget {
+  const _PersonalizationStatus({
+    required this.enrollmentCount,
+    required this.requiredCount,
+    required this.isPersonalized,
+    required this.hasPendingPersonalizationUpdate,
+  });
+
+  final int enrollmentCount;
+  final int requiredCount;
+  final bool isPersonalized;
+  final bool hasPendingPersonalizationUpdate;
+
+  @override
+  Widget build(BuildContext context) {
+    final statusText = isPersonalized
+        ? (hasPendingPersonalizationUpdate
+            ? 'Personalized. New recording pending update.'
+            : 'Personalized. Free Speech is ready.')
+        : 'Enrollment: $enrollmentCount / $requiredCount';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isPersonalized ? Icons.verified : Icons.info_outline,
+            color: isPersonalized
+                ? WcagTheme.brandPrimary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              statusText,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,59 +1,91 @@
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 
 import '../../core/constants/api_endpoints.dart';
+import '../../core/user/session_store.dart';
 import 'api_client.dart';
 import 'enrollment_clip.dart';
 
-/// Uploads enrollment audio and other server calls (TTS, etc.).
-///
-/// TODO: Define multipart schema, auth headers, and streaming TTS protocol.
 class NetworkSyncManager {
   NetworkSyncManager({ApiClient? apiClient}) : client = apiClient ?? ApiClient();
 
-  /// Shared HTTP client for enrollment and TTS calls.
   final ApiClient client;
 
-  /// Upload enrollment clips (paths on device) in one request or batch (TBD).
-    Future<void> uploadEnrollment({
-    required String userId,
-    required List<EnrollmentClip> clips,
+  Future<SessionUser> signup({
+    required String name,
+    required String email,
+    required String password,
   }) async {
-    if (clips.isEmpty) return;
-
-    final phraseMeta = clips
-        .map((c) => {'index': c.index, 'phrase': c.phrase})
-        .toList();
-
-    final form = FormData.fromMap({
-      'user_id': userId,
-      'phrases': jsonEncode(phraseMeta),
-    });
-
-    for (final c in clips) {
-      form.files.add(
-        MapEntry(
-          'audio_${c.index}',
-          await MultipartFile.fromFile(
-            c.file.path,
-            filename: c.file.uri.pathSegments.isNotEmpty
-                ? c.file.uri.pathSegments.last
-                : 'clip_${c.index}.m4a',
-          ),
-        ),
-      );
-    }
-
-    await client.client.post(ApiEndpoints.enrollmentUpload, data: form);
+    final response = await client.client.post(
+      ApiEndpoints.signup,
+      data: {'name': name, 'email': email, 'password': password},
+    );
+    return _saveAuthResponse(response.data as Map<String, dynamic>);
   }
 
-  /// Request cloned-voice TTS; returns playable URL or stream handle (TBD).
-  Future<String> requestTts({
-    required String text,
-    required String voiceEmbeddingId,
+  Future<SessionUser> login({
+    required String email,
+    required String password,
   }) async {
-    // TODO: POST → URL or SSE
-    return '';
+    final response = await client.client.post(
+      ApiEndpoints.login,
+      data: {'email': email, 'password': password},
+    );
+    return _saveAuthResponse(response.data as Map<String, dynamic>);
+  }
+
+  Future<SessionUser> currentUser() async {
+    final response = await client.client.get(ApiEndpoints.me);
+    return SessionUser.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<Map<String, dynamic>> personalizationStatus() async {
+    final response = await client.client.get(ApiEndpoints.personalizationStatus);
+    return Map<String, dynamic>.from(response.data as Map);
+  }
+
+  Future<Map<String, dynamic>> finalizePersonalization() async {
+    final response = await client.client.post(ApiEndpoints.personalizationFinalize);
+    return Map<String, dynamic>.from(response.data as Map);
+  }
+
+  Future<void> uploadEnrollment({required List<EnrollmentClip> clips}) async {
+    if (clips.isEmpty) return;
+    for (final c in clips) {
+      final form = FormData.fromMap({
+        'phrase_id': c.index.toString(),
+        'transcript': c.phrase,
+        'intent': c.intent,
+        'category': c.category,
+        'file': await MultipartFile.fromFile(
+          c.file.path,
+          filename: c.file.uri.pathSegments.isNotEmpty
+              ? c.file.uri.pathSegments.last
+              : 'clip_${c.index}.wav',
+        ),
+      });
+      await client.client.post(ApiEndpoints.enrollmentUpload, data: form);
+    }
+  }
+
+  Future<Map<String, dynamic>> transcribe(File audioFile) async {
+    final form = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        audioFile.path,
+        filename: audioFile.uri.pathSegments.isNotEmpty
+            ? audioFile.uri.pathSegments.last
+            : 'speech.wav',
+      ),
+    });
+    final response = await client.client.post(ApiEndpoints.transcribe, data: form);
+    return Map<String, dynamic>.from(response.data as Map);
+  }
+
+  Future<SessionUser> _saveAuthResponse(Map<String, dynamic> data) async {
+    final token = data['access_token'] as String;
+    final user = SessionUser.fromJson(data['user'] as Map<String, dynamic>);
+    await SessionStore.instance.save(token: token, user: user);
+    return user;
   }
 }

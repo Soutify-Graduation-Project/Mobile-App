@@ -18,6 +18,29 @@ class PersonalizationWord {
 
   String get phrase => wordArabic;
 
+  String get intentLabel {
+    switch (category) {
+      case 'حيوانات':
+        return 'animals';
+      case 'أكل':
+        return 'food';
+      case 'ألوان':
+        return 'colors';
+      case 'أماكن':
+      case 'طبيعة':
+        return 'place';
+      case 'أفعال':
+        return 'habit';
+      case 'جسم':
+        return 'people';
+      case 'بيت':
+      case 'لبس':
+        return 'object';
+      default:
+        return 'unknown';
+    }
+  }
+
   String get semanticsLabel =>
       'صورة $wordArabic. اضغط الميكروفون وقل كلمة $wordArabic.';
 

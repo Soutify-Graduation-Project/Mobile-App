@@ -7,7 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../core/user/user_id_store.dart';
+import '../../core/user/session_store.dart';
 import '../../modules/network_sync/enrollment_clip.dart';
 import '../../modules/network_sync/network_sync_manager.dart';
 import '../../modules/sound_playback/sound_playback_service.dart';
@@ -18,7 +18,16 @@ import 'personalization_words_model.dart';
 import 'upload_status.dart';
 
 class PersonalizationController extends StatefulWidget {
-  const PersonalizationController({super.key});
+  const PersonalizationController({
+    super.key,
+    this.initialStatus = const {},
+    this.onStatusChanged,
+    this.onPersonalizationReady,
+  });
+
+  final Map<String, dynamic> initialStatus;
+  final ValueChanged<Map<String, dynamic>>? onStatusChanged;
+  final ValueChanged<Map<String, dynamic>>? onPersonalizationReady;
 
   @override
   State<PersonalizationController> createState() =>
@@ -42,13 +51,17 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
   bool _isRecording = false;
   bool _isPlaying = false;
   bool _isRecorded = false;
+  bool _isFinalizing = false;
+  bool _hasPendingPersonalizationUpdate = false;
   UploadStatus _uploadStatus = UploadStatus.notStarted;
+  Map<String, dynamic> _status = const {};
 
   StreamSubscription<PlayerState>? _playerSub;
 
   @override
   void initState() {
     super.initState();
+    _status = Map<String, dynamic>.from(widget.initialStatus);
     _playerSub = _player.playerStateStream.listen((state) {
       if (!mounted) return;
       final playing = state.playing;
@@ -57,6 +70,14 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
       }
     });
     _init();
+  }
+
+  @override
+  void didUpdateWidget(covariant PersonalizationController oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialStatus != widget.initialStatus) {
+      _status = Map<String, dynamic>.from(widget.initialStatus);
+    }
   }
 
   @override
@@ -70,19 +91,26 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
 
   Future<void> _init() async {
     try {
-      final userId = await UserIdStore.instance.getOrCreateUserId();
+      final user = await SessionStore.instance.user;
+      final userId = user?.id;
+      if (userId == null) {
+        throw StateError('Missing login session.');
+      }
       final docs = await getApplicationDocumentsDirectory();
       final root = Directory(p.join(docs.path, 'soutify_enrollment'));
       if (!await root.exists()) await root.create(recursive: true);
       final prompts = await loadPersonalizationWords();
+      final status = await _network.personalizationStatus();
       if (!mounted) return;
 
       setState(() {
         _userId = userId;
         _enrollmentRoot = root;
         _prompts = prompts;
+        _status = status;
         _loading = false;
       });
+      widget.onStatusChanged?.call(status);
 
       final lastRecorded = await _lastRecordedIndex();
       if (!mounted || !_pageController.hasClients) return;
@@ -100,6 +128,22 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
 
   PersonalizationWord get _currentPrompt => _prompts[_currentIndex];
 
+  bool get _isPersonalized => _status['personalized'] == true;
+
+  bool get _readyForPersonalization =>
+      _status['ready_for_personalization'] == true ||
+      _enrollmentCount >= _requiredCount;
+
+  int get _enrollmentCount => (_status['enrollment_count'] as num?)?.toInt() ?? 0;
+
+  int get _requiredCount => (_status['required_count'] as num?)?.toInt() ?? 5;
+
+  bool get _showFinalizeAction {
+    if (_isFinalizing) return false;
+    if (!_isPersonalized && _readyForPersonalization) return true;
+    return _isPersonalized && _hasPendingPersonalizationUpdate;
+  }
+
   String _clipPath(int index) {
     final prompt = _prompts[index];
     return enrollmentClipPath(
@@ -107,7 +151,7 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
       userId: _userId!,
       phrase: prompt.phrase,
       phraseIndex: index,
-      extension: 'm4a',
+      extension: 'wav',
     );
   }
 
@@ -235,17 +279,24 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
     setState(() => _uploadStatus = UploadStatus.started);
     try {
       await _network.uploadEnrollment(
-        userId: _userId!,
         clips: [
           EnrollmentClip(
             index: _currentIndex,
             phrase: _currentPrompt.phrase,
+            intent: _currentPrompt.intentLabel,
+            category: _currentPrompt.category,
             file: File(_clipPath(_currentIndex)),
           ),
         ],
       );
+      final status = await _network.personalizationStatus();
       if (!mounted) return;
-      setState(() => _uploadStatus = UploadStatus.completed);
+      setState(() {
+        _status = status;
+        _hasPendingPersonalizationUpdate = true;
+        _uploadStatus = UploadStatus.completed;
+      });
+      widget.onStatusChanged?.call(status);
     } catch (e) {
       if (mounted) {
         setState(() => _uploadStatus = UploadStatus.interrupted);
@@ -253,6 +304,39 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
           SnackBar(content: Text('فشل الإرسال: $e')),
         );
       }
+    }
+  }
+
+  Future<void> _finalizePersonalization() async {
+    if (_isFinalizing) return;
+    final wasPersonalized = _isPersonalized;
+    setState(() {
+      _isFinalizing = true;
+      _uploadStatus = UploadStatus.started;
+    });
+    try {
+      final result = await _network.finalizePersonalization();
+      final status = Map<String, dynamic>.from(result['status'] as Map);
+      if (!mounted) return;
+      setState(() {
+        _status = status;
+        _isFinalizing = false;
+        _hasPendingPersonalizationUpdate = false;
+        _uploadStatus = UploadStatus.completed;
+      });
+      widget.onStatusChanged?.call(status);
+      if (!wasPersonalized && status['personalized'] == true) {
+        widget.onPersonalizationReady?.call(status);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isFinalizing = false;
+        _uploadStatus = UploadStatus.interrupted;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('فشل التخصيص: $e')),
+      );
     }
   }
 
@@ -296,6 +380,13 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
       isPlaying: _isPlaying,
       isRecorded: _isRecorded,
       uploadStatus: _uploadStatus,
+      isFinalizing: _isFinalizing,
+      enrollmentCount: _enrollmentCount,
+      requiredCount: _requiredCount,
+      isPersonalized: _isPersonalized,
+      hasPendingPersonalizationUpdate: _hasPendingPersonalizationUpdate,
+      showFinalizeAction: _showFinalizeAction,
+      finalizePersonalization: _showFinalizeAction ? _finalizePersonalization : null,
     );
   }
 }
