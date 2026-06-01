@@ -77,6 +77,7 @@ class NetworkSyncManager {
             ? audioFile.uri.pathSegments.last
             : 'speech.wav',
       ),
+      'include_tts': 'true',
     });
     final response = await client.client.post(ApiEndpoints.transcribe, data: form);
     return Map<String, dynamic>.from(response.data as Map);

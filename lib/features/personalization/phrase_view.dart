@@ -25,8 +25,8 @@ class PhraseView extends StatelessWidget {
 
             return Card(
               margin: EdgeInsets.symmetric(
-                vertical: orientation == Orientation.portrait ? 48 : 0,
-                horizontal: 6,
+                vertical: orientation == Orientation.portrait ? 8 : 0,
+                horizontal: 4,
               ),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(48)),
@@ -35,18 +35,15 @@ class PhraseView extends StatelessWidget {
                   ? scheme.onTertiary
                   : scheme.onSecondary,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Text(
-                            '${phrase.id}',
-                            style: TextStyle(color: scheme.outline),
-                          ),
+                        Text(
+                          '${phrase.id}',
+                          style: TextStyle(color: scheme.outline),
                         ),
                         Container(
                           decoration: ShapeDecoration(
@@ -55,9 +52,10 @@ class PhraseView extends StatelessWidget {
                                 ? Colors.blue
                                 : Colors.transparent,
                           ),
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(4),
                           child: Icon(
                             Icons.check_rounded,
+                            size: 20,
                             color: isRecordingAvailable
                                 ? Colors.white
                                 : Colors.transparent,
@@ -67,7 +65,7 @@ class PhraseView extends StatelessWidget {
                     ),
                     Text(
                       phrase.phrase,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: isRecordingAvailable
                                 ? scheme.tertiary
                                 : scheme.secondary,
@@ -77,7 +75,7 @@ class PhraseView extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 4),
                     Expanded(
                       child: Semantics(
                         label: phrase.semanticsLabel,

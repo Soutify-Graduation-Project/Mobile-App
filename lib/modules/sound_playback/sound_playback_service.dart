@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:just_audio/just_audio.dart';
@@ -27,6 +28,17 @@ class SoundPlaybackService {
   Future<void> playFile(String path) async {
     await _player.setFilePath(path);
     await _player.play();
+  }
+
+  /// Decodes [base64Audio] to a temp file and plays it (e.g. transcribe TTS).
+  Future<void> playBase64(String base64Audio, {String extension = 'wav'}) async {
+    final bytes = base64Decode(base64Audio);
+    final dir = await cacheDirectory();
+    final path =
+        '${dir.path}/playback_${DateTime.now().millisecondsSinceEpoch}.$extension';
+    final file = File(path);
+    await file.writeAsBytes(bytes);
+    await playFile(path);
   }
 
   Future<void> pause() => _player.pause();

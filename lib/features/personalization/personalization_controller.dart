@@ -139,7 +139,7 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
   int get _requiredCount => (_status['required_count'] as num?)?.toInt() ?? 5;
 
   bool get _showFinalizeAction {
-    if (_isFinalizing) return false;
+    if (_isFinalizing) return true;
     if (!_isPersonalized && _readyForPersonalization) return true;
     return _isPersonalized && _hasPendingPersonalizationUpdate;
   }
@@ -386,7 +386,8 @@ class _PersonalizationControllerState extends State<PersonalizationController> {
       isPersonalized: _isPersonalized,
       hasPendingPersonalizationUpdate: _hasPendingPersonalizationUpdate,
       showFinalizeAction: _showFinalizeAction,
-      finalizePersonalization: _showFinalizeAction ? _finalizePersonalization : null,
+      finalizePersonalization:
+          _showFinalizeAction && !_isFinalizing ? _finalizePersonalization : null,
     );
   }
 }

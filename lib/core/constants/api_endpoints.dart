@@ -1,8 +1,7 @@
+import 'api_base_url.dart';
+
 abstract final class ApiEndpoints {
-  static const String baseUrl = String.fromEnvironment(
-    'SOUTIFY_API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:8000',
-  );
+  static final String baseUrl = resolveApiBaseUrl();
 
   static const String signup = '/auth/signup';
   static const String login = '/auth/login';

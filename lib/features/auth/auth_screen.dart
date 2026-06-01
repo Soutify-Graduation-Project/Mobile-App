@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../modules/network_sync/api_error_message.dart';
 import '../../modules/network_sync/network_sync_manager.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -46,7 +47,7 @@ class _AuthScreenState extends State<AuthScreen> {
       if (!mounted) return;
       widget.onAuthenticated();
     } catch (e) {
-      if (mounted) _showError('Authentication failed: $e');
+      if (mounted) _showError(formatApiError(e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }

@@ -5,6 +5,12 @@ import 'personalization_words_model.dart';
 import 'phrase_view.dart';
 import 'upload_status.dart';
 
+const _compactIconButtonStyle = ButtonStyle(
+  padding: WidgetStatePropertyAll(EdgeInsets.all(8)),
+  minimumSize: WidgetStatePropertyAll(Size(40, 40)),
+  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+);
+
 class PersonalizationView extends StatelessWidget {
   const PersonalizationView({
     super.key,
@@ -53,134 +59,149 @@ class PersonalizationView extends StatelessWidget {
   final PageController? controller;
   final VoidCallback? finalizePersonalization;
 
+  bool get _isUploadingPhrase =>
+      uploadStatus == UploadStatus.started && !isFinalizing;
+
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    var sideLength = width;
-    if (height < width) {
-      sideLength = height - 180;
-    }
-
-    final body = OrientationBuilder(
-      builder: (context, orientation) {
-        final pageArea = PageView.builder(
-          key: pageStorageKey,
-          controller: controller,
-          itemCount: phrases.length,
-          onPageChanged: onPageChanged,
-          itemBuilder: (context, pageIndex) {
-            return PhraseView(
-              phrase: phrases[pageIndex],
-              hasRecording: () => hasRecordingFor(pageIndex),
+    final body = LayoutBuilder(
+      builder: (context, constraints) {
+        return OrientationBuilder(
+          builder: (context, orientation) {
+            final pageArea = PageView.builder(
+              key: pageStorageKey,
+              controller: controller,
+              itemCount: phrases.length,
+              onPageChanged: onPageChanged,
+              itemBuilder: (context, pageIndex) {
+                return PhraseView(
+                  phrase: phrases[pageIndex],
+                  hasRecording: () => hasRecordingFor(pageIndex),
+                );
+              },
             );
-          },
-        );
 
-        final firstHalf = <Widget>[
-          SizedBox(
-            width: orientation == Orientation.landscape
-                ? (width * 2 / 3) - 100
-                : sideLength,
-            height: sideLength,
-            child: pageArea,
-          ),
-        ];
-
-        final secondHalf = <Widget>[
-          _PersonalizationStatus(
-            enrollmentCount: enrollmentCount,
-            requiredCount: requiredCount,
-            isPersonalized: isPersonalized,
-            hasPendingPersonalizationUpdate: hasPendingPersonalizationUpdate,
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Semantics(
-                label: 'العبارة السابقة',
-                hint: 'الانتقال إلى العبارة السابقة',
-                child: IconButton.outlined(
-                  onPressed: previousPhrase,
-                  iconSize: 48,
-                  icon: const Icon(Icons.skip_previous),
-                ),
+            final controls = <Widget>[
+              _PersonalizationStatus(
+                enrollmentCount: enrollmentCount,
+                requiredCount: requiredCount,
+                isPersonalized: isPersonalized,
+                hasPendingPersonalizationUpdate: hasPendingPersonalizationUpdate,
               ),
-              const SizedBox(width: 24),
-              Semantics(
-                label: 'تشغيل التسجيل',
-                hint: 'تشغيل أو إيقاف تسجيل العبارة الحالية',
-                child: IconButton.outlined(
-                  onPressed: play,
-                  iconSize: 48,
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                ),
-              ),
-              const SizedBox(width: 24),
-              Semantics(
-                label: 'العبارة التالية',
-                hint: 'الانتقال إلى العبارة التالية',
-                child: IconButton.outlined(
-                  onPressed: nextPhrase,
-                  iconSize: 48,
-                  icon: const Icon(Icons.skip_next),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 40),
-          MaterialButton(
-            onPressed: record,
-            color: isRecording
-                ? WcagTheme.recordingRed
-                : (isRecorded ? WcagTheme.idleGrey : WcagTheme.brandPrimary),
-            textColor: Colors.white,
-            disabledColor: Colors.grey,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(80)),
-            ),
-            padding: const EdgeInsets.fromLTRB(80, 24, 80, 24),
-            child: Text(
-              isRecording
-                  ? 'إيقاف التسجيل'
-                  : (isRecorded ? 'إعادة التسجيل' : 'تسجيل'),
-              style: const TextStyle(fontSize: 24),
-            ),
-          ),
-          if (uploadStatus == UploadStatus.started) ...[
-            const SizedBox(height: 16),
-            const CircularProgressIndicator(),
-            if (isFinalizing) ...[
-              const SizedBox(height: 8),
-              const Text('Personalization is running on the server...'),
-            ],
-          ],
-        ];
-
-        return orientation == Orientation.portrait
-            ? Column(children: [...firstHalf, ...secondHalf])
-            : Row(
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(children: firstHalf),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 8,
+                  Semantics(
+                    label: 'العبارة السابقة',
+                    hint: 'الانتقال إلى العبارة السابقة',
+                    child: IconButton.outlined(
+                      onPressed: previousPhrase,
+                      iconSize: 32,
+                      style: _compactIconButtonStyle,
+                      icon: const Icon(Icons.skip_previous),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Semantics(
+                    label: 'تشغيل التسجيل',
+                    hint: 'تشغيل أو إيقاف تسجيل العبارة الحالية',
+                    child: IconButton.outlined(
+                      onPressed: play,
+                      iconSize: 32,
+                      style: _compactIconButtonStyle,
+                      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Semantics(
+                    label: 'العبارة التالية',
+                    hint: 'الانتقال إلى العبارة التالية',
+                    child: IconButton.outlined(
+                      onPressed: nextPhrase,
+                      iconSize: 32,
+                      style: _compactIconButtonStyle,
+                      icon: const Icon(Icons.skip_next),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              MaterialButton(
+                onPressed: _isUploadingPhrase ? null : record,
+                color: isRecording
+                    ? WcagTheme.recordingRed
+                    : (isRecorded ? WcagTheme.idleGrey : WcagTheme.brandPrimary),
+                textColor: Colors.white,
+                disabledColor: WcagTheme.brandPrimary.withValues(alpha: 0.7),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(80)),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 14),
+                child: _isUploadingPhrase
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        isRecording
+                            ? 'إيقاف التسجيل'
+                            : (isRecorded ? 'إعادة التسجيل' : 'تسجيل'),
+                        style: const TextStyle(fontSize: 18),
                       ),
-                      child: Column(children: secondHalf),
+              ),
+            ];
+
+            final controlsColumn = Column(
+              mainAxisSize: MainAxisSize.min,
+              children: controls,
+            );
+
+            if (orientation == Orientation.portrait) {
+              return Column(
+                children: [
+                  Expanded(flex: 5, child: pageArea),
+                  Flexible(
+                    flex: 2,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: controlsColumn,
                     ),
                   ),
                 ],
               );
+            }
+
+            return Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: pageArea,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 8,
+                    ),
+                    child: controlsColumn,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
       },
     );
 
     return Stack(
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: showFinalizeAction ? 92 : 0),
+          padding: EdgeInsets.only(bottom: showFinalizeAction ? 104 : 0),
           child: body,
         ),
         if (showFinalizeAction)
@@ -192,6 +213,45 @@ class PersonalizationView extends StatelessWidget {
               isPersonalized: isPersonalized,
               isFinalizing: isFinalizing,
               onPressed: finalizePersonalization,
+            ),
+          ),
+        if (isFinalizing)
+          Positioned.fill(
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: 0.35),
+              child: Center(
+                child: Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 24,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Running personalization…',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Waiting for the server. This may take a minute.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
       ],
@@ -218,31 +278,36 @@ class _FinalizePersonalizationBar extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            if (isFinalizing) ...[
-              const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              const SizedBox(width: 12),
-            ],
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: isFinalizing ? null : onPressed,
+        child: isFinalizing
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      'Personalization is running…',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                ],
+              )
+            : FilledButton.icon(
+                onPressed: onPressed,
                 icon: Icon(isPersonalized ? Icons.sync : Icons.auto_fix_high),
                 label: Text(
-                  isFinalizing
-                      ? 'Personalization is running...'
-                      : isPersonalized
-                          ? 'Update Personalization'
-                          : 'Start Personalization',
+                  isPersonalized
+                      ? 'Update Personalization'
+                      : 'Start Personalization',
                 ),
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

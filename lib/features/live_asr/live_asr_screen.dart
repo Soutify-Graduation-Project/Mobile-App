@@ -7,9 +7,10 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/accessibility/wcag_theme.dart';
 import '../../modules/network_sync/network_sync_manager.dart';
+import '../../modules/sound_playback/sound_playback_service.dart';
 import '../../modules/speech_recording/speech_recording_service.dart';
 
-enum _LivePhase { idle, recording, revealing }
+enum _LivePhase { idle, recording, processing, revealing }
 
 class LiveAsrScreen extends StatefulWidget {
   const LiveAsrScreen({
@@ -27,6 +28,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     with SingleTickerProviderStateMixin {
   final SpeechRecordingService _recorder = SpeechRecordingService();
   final NetworkSyncManager _network = NetworkSyncManager();
+  final SoundPlaybackService _playback = SoundPlaybackService();
 
   String? _activeRecordingPath;
   _LivePhase _phase = _LivePhase.idle;
@@ -58,6 +60,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     _pulseController?.dispose();
     _typewriter?.cancel();
     unawaited(_recorder.dispose());
+    unawaited(_playback.dispose());
     super.dispose();
   }
 
@@ -85,7 +88,9 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
   }
 
   Future<void> _toggleMic() async {
-    if (_phase == _LivePhase.revealing) return;
+    if (_phase == _LivePhase.processing || _phase == _LivePhase.revealing) {
+      return;
+    }
     if (_phase == _LivePhase.recording) {
       await _stopAndReveal();
       return;
@@ -108,6 +113,7 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     final file = File(path);
     if (await file.exists()) await file.delete();
     try {
+      await _playback.stop();
       await _recorder.start(path: path);
       if (!mounted) return;
       setState(() {
@@ -134,15 +140,23 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     if (!mounted) return;
     setState(() {
       _activeRecordingPath = null;
-      _phase = _LivePhase.revealing;
+      _phase = _LivePhase.processing;
       _shownText = '';
+      _resultText = '';
     });
     _syncRecordingPulse();
 
     try {
-      final text = await _sendToServer(audioPath);
+      final result = await _sendToServer(audioPath);
       if (!mounted) return;
-      setState(() => _resultText = text.isEmpty ? 'No speech detected.' : text);
+      setState(() {
+        _resultText =
+            result.text.isEmpty ? 'No speech detected.' : result.text;
+        _phase = _LivePhase.revealing;
+      });
+      if (result.ttsAudioBase64 != null) {
+        unawaited(_playback.playBase64(result.ttsAudioBase64!));
+      }
       _runTypewriter();
     } catch (e) {
       if (!mounted) return;
@@ -157,12 +171,28 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
     }
   }
 
-  Future<String> _sendToServer(String? audioPath) async {
-    if (audioPath == null) return '';
+  Future<({String text, String? ttsAudioBase64})> _sendToServer(
+    String? audioPath,
+  ) async {
+    if (audioPath == null) {
+      return (text: '', ttsAudioBase64: null);
+    }
     final response = await _network.transcribe(File(audioPath));
     final text = (response['text'] as String? ?? '').trim();
-    if (text.isNotEmpty) return text;
-    return (response['raw_asr_text'] as String? ?? '').trim();
+    final corrected = text.isNotEmpty
+        ? text
+        : (response['raw_asr_text'] as String? ?? '').trim();
+
+    String? ttsAudioBase64;
+    final tts = response['tts'];
+    if (tts is Map) {
+      ttsAudioBase64 = (tts['audio_base64'] as String?)?.trim();
+      if (ttsAudioBase64 != null && ttsAudioBase64.isEmpty) {
+        ttsAudioBase64 = null;
+      }
+    }
+
+    return (text: corrected, ttsAudioBase64: ttsAudioBase64);
   }
 
   void _runTypewriter() {
@@ -209,11 +239,13 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
   }
 
   Widget _buildContent(BuildContext context) {
+    final processing = _phase == _LivePhase.processing;
     final revealing = _phase == _LivePhase.revealing;
     final textStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
           color: Colors.black,
           height: 1.35,
         );
+    final resultVisible = revealing || _shownText.isNotEmpty;
 
     return SafeArea(
       child: Center(
@@ -222,18 +254,20 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (revealing || _shownText.isNotEmpty)
+              if (resultVisible)
                 Text(
                   _shownText,
                   style: textStyle,
                   textAlign: TextAlign.center,
                 ),
-              SizedBox(height: revealing || _shownText.isNotEmpty ? 40 : 0),
+              SizedBox(height: resultVisible ? 40 : 0),
               Semantics(
                 button: true,
-                label: _phase == _LivePhase.recording
-                    ? 'Stop recording'
-                    : 'Start recording',
+                label: switch (_phase) {
+                  _LivePhase.recording => 'Stop recording',
+                  _LivePhase.processing => 'Processing speech',
+                  _ => 'Start recording',
+                },
                 child: ScaleTransition(
                   scale: _phase == _LivePhase.recording
                       ? _pulseScale!
@@ -246,17 +280,25 @@ class _LiveAsrScreenState extends State<LiveAsrScreen>
                     shape: const CircleBorder(),
                     child: InkWell(
                       customBorder: const CircleBorder(),
-                      onTap: revealing ? null : _toggleMic,
+                      onTap: processing || revealing ? null : _toggleMic,
                       child: SizedBox(
                         width: 120,
                         height: 120,
-                        child: Icon(
-                          _phase == _LivePhase.recording
-                              ? Icons.mic
-                              : Icons.circle,
-                          size: 64,
-                          color: Colors.white,
-                        ),
+                        child: processing
+                            ? const Padding(
+                                padding: EdgeInsets.all(28),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Icon(
+                                _phase == _LivePhase.recording
+                                    ? Icons.mic
+                                    : Icons.circle,
+                                size: 64,
+                                color: Colors.white,
+                              ),
                       ),
                     ),
                   ),
