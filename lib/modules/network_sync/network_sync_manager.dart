@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
-
 import '../../core/constants/api_endpoints.dart';
 import '../../core/user/session_store.dart';
 import 'api_client.dart';

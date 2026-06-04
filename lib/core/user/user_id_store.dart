@@ -1,7 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-
-/// Persists a stable anonymous user id for enrollment filenames and API calls.
 class UserIdStore {
   UserIdStore._();
 

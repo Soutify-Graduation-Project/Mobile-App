@@ -10,7 +10,6 @@ class SpeechRecordingService {
 
   Future<bool> hasPermission() => _recorder.hasPermission();
 
-  /// Starts recording to [path]. Stub: caller supplies a temp file path.
   Future<void> start({required String path}) async {
     await _recorder.start(
       RecordConfig(

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-
 import '../../features/personalization/personalization_screen.dart';
 import '../../features/live_asr/live_asr_screen.dart';
 import '../../features/auth/auth_gate.dart';
 
-/// Named routes for the scaffold. Swap for [go_router] or similar later.
 abstract final class AppRouter {
   static const String home = '/';
   static const String enrollment = '/enrollment';

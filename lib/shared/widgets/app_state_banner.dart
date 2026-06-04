@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/accessibility/wcag_theme.dart';
-
-/// Shows current workflow state with color and semantics (idle / recording / processing).
 class AppStateBanner extends StatefulWidget {
   const AppStateBanner({
     super.key,

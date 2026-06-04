@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Minimum touch target per WCAG 2.1 AA (48 logical pixels).
 abstract final class AppSemantics {
   static const double minTapTarget = 48;
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/accessibility/app_semantics.dart';
 
-/// Single-tap primary control; large target for tremor / motor accessibility.
 class LargePrimaryButton extends StatelessWidget {
   LargePrimaryButton({
     super.key,
