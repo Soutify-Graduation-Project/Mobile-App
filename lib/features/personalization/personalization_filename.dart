@@ -23,7 +23,6 @@ bool _isWhitespaceRune(int r) {
       r == 0x3000;
 }
 
-/// Strips unsafe filename characters and collapses whitespace to underscores without regex.
 String _sanitizePhraseForFilename(String phrase) {
   final sb = StringBuffer();
   var pendingUnderscore = false;

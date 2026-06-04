@@ -78,7 +78,6 @@ class PhraseView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Expanded(
                       child: Semantics(
-                        label: phrase.semanticsLabel,
                         image: true,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),

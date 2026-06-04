@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
-
-/// One personalization step: Arabic word, category, and illustration asset.
 class PersonalizationWord {
   const PersonalizationWord({
     required this.id,
@@ -40,9 +38,6 @@ class PersonalizationWord {
         return 'unknown';
     }
   }
-
-  String get semanticsLabel =>
-      'صورة $wordArabic. اضغط الميكروفون وقل كلمة $wordArabic.';
 
   factory PersonalizationWord.fromJson(Map<String, dynamic> json) {
     return PersonalizationWord(

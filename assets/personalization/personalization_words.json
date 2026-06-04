@@ -280,7 +280,7 @@
       "id": 47,
       "word_arabic": "جاكيت",
       "category": "لبس",
-      "image_uri": "assets/personalization/images/jacket.jpg"
+      "image_uri": "assets/personalization/images/jacket.webp"
     },
     {
       "id": 48,
@@ -316,7 +316,7 @@
       "id": 53,
       "word_arabic": "راس",
       "category": "جسم",
-      "image_uri": "assets/personalization/images/head.jpg"
+      "image_uri": "assets/personalization/images/head.png"
     },
     {
       "id": 54,
@@ -328,13 +328,13 @@
       "id": 55,
       "word_arabic": "مناخير",
       "category": "جسم",
-      "image_uri": "assets/personalization/images/nose.jpg"
+      "image_uri": "assets/personalization/images/nose.webp"
     },
     {
       "id": 56,
       "word_arabic": "بق",
       "category": "جسم",
-      "image_uri": "assets/personalization/images/mouth.jpg"
+      "image_uri": "assets/personalization/images/mouth.webp"
     },
     {
       "id": 57,
@@ -350,246 +350,216 @@
     },
     {
       "id": 59,
-      "word_arabic": "صباع",
-      "category": "جسم",
-      "image_uri": "assets/personalization/images/finger.jpg"
-    },
-    {
-      "id": 60,
-      "word_arabic": "دراع",
-      "category": "جسم",
-      "image_uri": "assets/personalization/images/arm.jpg"
-    },
-    {
-      "id": 61,
       "word_arabic": "رجل",
       "category": "جسم",
       "image_uri": "assets/personalization/images/leg.jpg"
     },
     {
-      "id": 62,
-      "word_arabic": "ضهر",
+      "id": 60,
+      "word_arabic": "بطن",
       "category": "جسم",
-      "image_uri": "assets/personalization/images/back.jpg"
+      "image_uri": "assets/personalization/images/stomach.webp"
+    },
+    {
+      "id": 61,
+      "word_arabic": "رقبة",
+      "category": "جسم",
+      "image_uri": "assets/personalization/images/neck.png"
+    },
+    {
+      "id": 62,
+      "word_arabic": "شعر",
+      "category": "جسم",
+      "image_uri": "assets/personalization/images/hair.webp"
     },
     {
       "id": 63,
-      "word_arabic": "بطن",
+      "word_arabic": "سنان",
       "category": "جسم",
-      "image_uri": "assets/personalization/images/stomach.jpg"
+      "image_uri": "assets/personalization/images/teeth.webp"
     },
     {
       "id": 64,
-      "word_arabic": "رقبة",
-      "category": "جسم",
-      "image_uri": "assets/personalization/images/neck.jpg"
-    },
-    {
-      "id": 65,
-      "word_arabic": "شعر",
-      "category": "جسم",
-      "image_uri": "assets/personalization/images/hair.jpg"
-    },
-    {
-      "id": 66,
-      "word_arabic": "سنان",
-      "category": "جسم",
-      "image_uri": "assets/personalization/images/teeth.jpg"
-    },
-    {
-      "id": 67,
       "word_arabic": "شمس",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/sun.jpg"
     },
     {
-      "id": 68,
+      "id": 65,
       "word_arabic": "قمر",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/moon.jpg"
     },
     {
-      "id": 69,
+      "id": 66,
       "word_arabic": "نجوم",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/stars.jpg"
     },
     {
-      "id": 70,
+      "id": 67,
       "word_arabic": "سحاب",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/cloud.jpg"
     },
     {
-      "id": 71,
+      "id": 68,
       "word_arabic": "مطر",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/rain.jpg"
     },
     {
-      "id": 72,
+      "id": 69,
       "word_arabic": "مياة",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/water.jpg"
     },
     {
-      "id": 73,
+      "id": 70,
       "word_arabic": "شجرة",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/tree.jpg"
     },
     {
-      "id": 74,
+      "id": 71,
       "word_arabic": "وردة",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/rose.jpg"
     },
     {
-      "id": 75,
+      "id": 72,
       "word_arabic": "طوبة",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/soil.jpg"
     },
     {
-      "id": 76,
+      "id": 73,
       "word_arabic": "رمل",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/sand.jpg"
     },
     {
-      "id": 77,
+      "id": 74,
       "word_arabic": "جبل",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/mountain.jpg"
     },
     {
-      "id": 78,
+      "id": 75,
       "word_arabic": "بحر",
       "category": "طبيعة",
       "image_uri": "assets/personalization/images/sea.jpg"
     },
     {
-      "id": 79,
+      "id": 76,
       "word_arabic": "أحمر",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_red.jpg"
     },
     {
-      "id": 80,
+      "id": 77,
       "word_arabic": "أخضر",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_green.jpg"
     },
     {
-      "id": 81,
+      "id": 78,
       "word_arabic": "أصفر",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_yellow.jpg"
     },
     {
-      "id": 82,
+      "id": 79,
       "word_arabic": "أسود",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_black.jpg"
     },
     {
-      "id": 83,
+      "id": 80,
       "word_arabic": "أزرق",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_blue.jpg"
     },
     {
-      "id": 84,
+      "id": 81,
       "word_arabic": "بني",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_brown.jpg"
     },
     {
-      "id": 85,
+      "id": 82,
       "word_arabic": "أبيض",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_white.jpg"
     },
     {
-      "id": 86,
+      "id": 83,
       "word_arabic": "برتقاني",
       "category": "ألوان",
       "image_uri": "assets/personalization/images/color_orange.jpg"
     },
     {
-      "id": 87,
+      "id": 84,
       "word_arabic": "ياكل",
       "category": "أفعال",
       "image_uri": "assets/personalization/images/eating.jpg"
     },
     {
-      "id": 88,
+      "id": 85,
       "word_arabic": "يشرب",
       "category": "أفعال",
       "image_uri": "assets/personalization/images/drinking.jpg"
     },
     {
-      "id": 89,
+      "id": 86,
       "word_arabic": "يمشي",
       "category": "أفعال",
       "image_uri": "assets/personalization/images/walking.jpg"
     },
     {
-      "id": 90,
+      "id": 87,
       "word_arabic": "يجري",
       "category": "أفعال",
       "image_uri": "assets/personalization/images/running.jpg"
     },
     {
-      "id": 91,
+      "id": 88,
       "word_arabic": "يلعب",
       "category": "أفعال",
       "image_uri": "assets/personalization/images/playing.jpg"
     },
     {
-      "id": 92,
+      "id": 89,
       "word_arabic": "ينام",
       "category": "أفعال",
       "image_uri": "assets/personalization/images/sleeping.jpg"
     },
     {
-      "id": 93,
-      "word_arabic": "يقفل",
-      "category": "أفعال",
-      "image_uri": "assets/personalization/images/closing_door.jpg"
-    },
-    {
-      "id": 94,
-      "word_arabic": "يفتح",
-      "category": "أفعال",
-      "image_uri": "assets/personalization/images/opening_door.jpg"
-    },
-    {
-      "id": 95,
+      "id": 90,
       "word_arabic": "مدرسة",
       "category": "أماكن",
       "image_uri": "assets/personalization/images/school.jpg"
     },
     {
-      "id": 96,
+      "id": 91,
       "word_arabic": "نادي",
       "category": "أماكن",
       "image_uri": "assets/personalization/images/stadium.jpg"
     },
     {
-      "id": 97,
+      "id": 92,
       "word_arabic": "كنيسة",
       "category": "أماكن",
       "image_uri": "assets/personalization/images/church.jpg"
     },
     {
-      "id": 98,
+      "id": 93,
       "word_arabic": "جامع",
       "category": "أماكن",
       "image_uri": "assets/personalization/images/mosque.jpg"
     },
     {
-      "id": 99,
+      "id": 94,
       "word_arabic": "مستشفى",
       "category": "أماكن",
       "image_uri": "assets/personalization/images/hospital.jpg"

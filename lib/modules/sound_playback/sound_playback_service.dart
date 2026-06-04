@@ -17,11 +17,6 @@ class SoundPlaybackService {
     return sub;
   }
 
-  Future<void> playUrl(String url) async {
-    await _player.setUrl(url);
-    await _player.play();
-  }
-
   Future<void> playFile(String path) async {
     await _player.setFilePath(path);
     await _player.play();
